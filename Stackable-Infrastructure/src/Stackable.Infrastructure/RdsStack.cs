@@ -1,5 +1,6 @@
 ﻿using Amazon.CDK.AWS.EC2;
 using Amazon.CDK.AWS.RDS;
+using System.Collections.Generic;
 
 namespace Stackable.Infrastructure;
 internal class RdsStack : Construct
@@ -11,16 +12,24 @@ internal class RdsStack : Construct
         string id,
         StackableSystemProvider systemProvider,
         Vpc vpc,
-        ISecurityGroup bastionSecurityGroup) : base(scope, id)
+        ISecurityGroup bastionSecurityGroup,
+        List<ISecurityGroup> securityGroups) : base(scope, id)
     {
         var rdsSecurityGroup = new SecurityGroup(this, systemProvider.GetId("rds-sg"), new SecurityGroupProps
         {
+            SecurityGroupName = systemProvider.GetId("rds-sg"),
             Vpc = vpc,
             AllowAllOutbound = true,
         });
 
         // 踏み台サーバーからRDSへのアクセスを許可
         rdsSecurityGroup.AddIngressRule(bastionSecurityGroup, Port.Tcp(3306), "Allow MySQL access from Bastion host");
+
+        // VPC内の各サービスからのアクセスを許可
+        foreach (var securityGroup in securityGroups)
+        {
+            rdsSecurityGroup.AddIngressRule(securityGroup, Port.Tcp(3306), $"Allow MySQL access from tasks");
+        }
 
         RdsInstance = new DatabaseInstance(this, systemProvider.GetId("db"), new DatabaseInstanceProps
         {

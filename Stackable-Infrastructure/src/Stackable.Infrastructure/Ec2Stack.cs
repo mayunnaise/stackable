@@ -15,6 +15,7 @@ internal class Ec2Stack : Construct
 
         BastionSecurityGroup = new SecurityGroup(this, systemProvider.GetId("bastion-sg"), new SecurityGroupProps
         {
+            SecurityGroupName = systemProvider.GetId("bastion-sg"),
             Vpc = vpc,
             AllowAllOutbound = true,
         });
