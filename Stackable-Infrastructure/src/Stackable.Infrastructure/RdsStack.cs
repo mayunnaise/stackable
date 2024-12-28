@@ -36,7 +36,7 @@ internal class RdsStack : Construct
             AllocatedStorage = 20,
             StorageType = StorageType.GP2,
             DeletionProtection = false,
-            DatabaseName = systemProvider.GetId("db"),
+            DatabaseName = $"{systemProvider.ProjectName}_{systemProvider.Environment}_db",
             // DB接続情報のSecretsManagerの保存先
             Credentials = Credentials.FromGeneratedSecret("admin", new CredentialsBaseOptions
             {
