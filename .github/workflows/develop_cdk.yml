@@ -11,6 +11,12 @@ on:
     paths:
       - "Stackable-Infrastructure/**"
 
+permissions:
+  id-token: write
+  contents: read
+  issues: write # PRにコメントできるように設定
+  pull-requests: write # PRにコメントできるように設定
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
