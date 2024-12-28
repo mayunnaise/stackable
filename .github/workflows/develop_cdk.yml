@@ -38,9 +38,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ap-northeast-1
-        run: |
-          cdk diff --require-approval never > deployment.log 2>&1
-          cat diff.log
+        run: cdk diff --require-approval never > deployment.log 2>&1 | tee ./diff.log
         working-directory: ./Stackable-Infrastructure
       
       - name: Post deployment log to PR
@@ -53,7 +51,7 @@ jobs:
           body: |
             **CDK Deployment Log**
             ```
-            $(cat diff.log)
+            $(cat ./Stackable-Infrastructure/diff.log)
             ```
 
       - name: CDK Deploy
