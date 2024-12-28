@@ -11,12 +11,6 @@ on:
     paths:
       - "Stackable-Infrastructure/**"
 
-permissions:
-  id-token: write
-  contents: read
-  issues: write # PRにコメントできるように設定
-  pull-requests: write # PRにコメントできるように設定
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -39,14 +33,14 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ap-northeast-1
-        run: cdk diff --require-approval never > ./output.log
+        run: cdk diff --require-approval never > ./diff.log
         working-directory: ./Stackable-Infrastructure
       
       - name: Save output
         id: output_log
         run: |
           echo "data<<EOF" >> $GITHUB_OUTPUT
-          echo "$(cat ./output.log)" >> $GITHUB_OUTPUT
+          echo "$(cat ./diff.log)" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
         working-directory: ./Stackable-Infrastructure
       
@@ -55,9 +49,8 @@ jobs:
         with:
           message-id: cdk-diff
           message: |
-            #### cdk diff
             <details>
-              <summary>Show diff</summary>
+              <summary>CDK Diff</summary>
               <pre>
               <code>
               ${{ steps.output_log.outputs.data }}
