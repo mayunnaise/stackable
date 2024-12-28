@@ -1,5 +1,4 @@
-﻿using Amazon.CDK;
-using Stackable.Infrastructure;
+﻿using Stackable.Infrastructure;
 
 var systemProvider = new StackableSystemProvider
 {
