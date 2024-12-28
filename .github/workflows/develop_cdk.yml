@@ -30,10 +30,12 @@ jobs:
         run: npm install -g aws-cdk
       
       - name: Install dependencies
-        run: dotnet restore --project Stackable-Infrastructure/src/Stackable.Infrastructure/Stackable.Infrastructure.csproj
+        run: dotnet restore
+        working-directory: ./Stackable-Infrastructure/src/Stackable.Infrastructure
 
       - name: Build the project
-        run: dotnet build --project Stackable-Infrastructure/src/Stackable.Infrastructure/Stackable.Infrastructure.csproj
+        run: dotnet build
+        working-directory: ./Stackable-Infrastructure/src/Stackable.Infrastructure
       
       - name: Diff CDK stack
         env:
