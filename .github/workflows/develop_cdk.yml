@@ -1,0 +1,75 @@
+name: Deploy CDK for develop
+
+on:
+  push:
+    branches:
+      - develop
+    paths:
+      - "Stackable-Infrastructure/**"
+      
+  pull_request:
+    paths:
+      - "Stackable-Infrastructure/**"
+
+permissions:
+  id-token: write
+  contents: read
+  issues: write # PRにコメントできるように設定
+  pull-requests: write # PRにコメントできるように設定
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8'
+
+      - name: Install AWS CDK
+        run: npm install -g aws-cdk
+      
+      - name: CDK Diff
+        id: cdk-diff
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ap-northeast-1
+        run: cdk diff --require-approval never > ./diff.log
+        working-directory: ./Stackable-Infrastructure
+      
+      - name: Save output
+        id: output_log
+        run: |
+          echo "data<<EOF" >> $GITHUB_OUTPUT
+          echo "$(cat ./diff.log)" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+        working-directory: ./Stackable-Infrastructure
+      
+      - name: Post diff in comment
+        uses: mshick/add-pr-comment@v2
+        with:
+          message-id: cdk-diff
+          message: |
+            <details>
+              <summary>CDK Diff</summary>
+              <pre>
+              <code>
+              ${{ steps.output_log.outputs.data }}
+              </code>
+              </pre>
+            </details>
+      
+      - name: CDK Deploy
+        if: contains(github.event_name, 'push')
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ap-northeast-1
+        run: cdk deploy --require-approval never
+        working-directory: ./Stackable-Infrastructure
+
