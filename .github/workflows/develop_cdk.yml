@@ -30,7 +30,7 @@ jobs:
         run: npm install -g aws-cdk
 
       - name: Build the project
-        run: dotnet build
+        run: dotnet build --project Stackable-Infrastructure/src/Stackable.Infrastructure/Stackable.Infrastructure.csproj
       
       - name: Diff CDK stack
         env:
