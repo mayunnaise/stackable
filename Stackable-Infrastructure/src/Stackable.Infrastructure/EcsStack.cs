@@ -27,6 +27,7 @@ internal class EcsStack : Construct
         var appRepository = new Repository(this, systemProvider.GetId("app-ecr"), new RepositoryProps
         {
             RepositoryName = systemProvider.GetId("app-ecr"),
+            RemovalPolicy = RemovalPolicy.DESTROY,
         });
 
         var taskRole = new Role(this, systemProvider.GetId("fargate-role"), new RoleProps
