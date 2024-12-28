@@ -47,7 +47,6 @@ jobs:
           echo "data<<EOF" >> $GITHUB_OUTPUT
           echo "$(cat output.log)" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
-        if: steps.diff.outcome == 'failure'
       - name: Post diff in comment
         uses: mshick/add-pr-comment@v2
         with:
@@ -62,7 +61,6 @@ jobs:
               </code>
               </pre>
             </details>
-        if: steps.diff.outcome == 'failure'
 
       - name: CDK Deploy
         if: contains(github.event_name, 'push')
