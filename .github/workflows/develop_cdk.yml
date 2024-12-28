@@ -43,4 +43,5 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ap-northeast-1
         run: cdk diff --require-approval never
+        working-directory: ./Stackable-Infrastructure
 
