@@ -28,6 +28,9 @@ jobs:
 
       - name: Install AWS CDK
         run: npm install -g aws-cdk
+      
+      - name: Install dependencies
+        run: dotnet restore --project Stackable-Infrastructure/src/Stackable.Infrastructure/Stackable.Infrastructure.csproj
 
       - name: Build the project
         run: dotnet build --project Stackable-Infrastructure/src/Stackable.Infrastructure/Stackable.Infrastructure.csproj
