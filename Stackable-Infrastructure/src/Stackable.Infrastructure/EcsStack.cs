@@ -27,7 +27,6 @@ internal class EcsStack : Construct
         var appRepository = new Repository(this, systemProvider.GetId("app-ecr"), new RepositoryProps
         {
             RepositoryName = systemProvider.GetId("app-ecr"),
-            RemovalPolicy = RemovalPolicy.DESTROY,
         });
 
         var taskRole = new Role(this, systemProvider.GetId("fargate-role"), new RoleProps
@@ -43,6 +42,25 @@ internal class EcsStack : Construct
             Resources = ["*"],
         }));
 
+        var taskDefinition = new FargateTaskDefinition(this, systemProvider.GetId("ecs-task"), new FargateTaskDefinitionProps
+        {
+            TaskRole = taskRole,
+        });
+        taskDefinition.AddContainer(systemProvider.GetId("app-task"), new ContainerDefinitionProps
+        {
+            ContainerName = systemProvider.GetId("app-task"),
+            Image = ContainerImage.FromEcrRepository(appRepository),
+            PortMappings = [new PortMapping
+            {
+                ContainerPort = 8080,
+                Protocol = Amazon.CDK.AWS.ECS.Protocol.TCP,
+            }],
+            Logging = new AwsLogDriver(new AwsLogDriverProps
+            {
+                StreamPrefix = systemProvider.GetId("app-log"),
+            }),
+        });
+
         _ = new ApplicationLoadBalancedFargateService(this, systemProvider.GetId("alb"), new ApplicationLoadBalancedFargateServiceProps
         {
             ServiceName = systemProvider.GetId("alb"),
@@ -50,12 +68,7 @@ internal class EcsStack : Construct
             DesiredCount = 1,
             PublicLoadBalancer = true,
             MemoryLimitMiB = 512,
-            TaskImageOptions = new ApplicationLoadBalancedTaskImageOptions
-            {
-                ContainerName = systemProvider.GetId("ecs-task"),
-                Image = ContainerImage.FromEcrRepository(appRepository),
-                ContainerPort = 8080,
-            },
+            TaskDefinition = taskDefinition,
             SecurityGroups = [FargateSecurityGroup],
         });
     }
