@@ -10,6 +10,8 @@ public class StackableStack : Stack
 
         var bastionStack = new Ec2Stack(this, systemProvider.GetId("bastion-stack"), systemProvider, vpcStack.Vpc);
 
-        var rdsStack = new RdsStack(this, systemProvider.GetId("rds-stack"), systemProvider, vpcStack.Vpc, bastionStack.BastionSecurityGroup);
+        var ecsStack = new EcsStack(this, systemProvider.GetId("ecs-stack"), systemProvider, vpcStack.Vpc);
+
+        var rdsStack = new RdsStack(this, systemProvider.GetId("rds-stack"), systemProvider, vpcStack.Vpc, bastionStack.BastionSecurityGroup, [ecsStack.FargateSecurityGroup]);
     }
 }
